@@ -276,9 +276,79 @@ var b = bar(3);
 console.log(b);
 ```
 
-- 하드 바인딩은 자주 쓰는 패턴이어서 ES5 내장 유틸리티 `Function.prototype.bind()`는 주어진 this 콘텍스트로 원본함수를 호출하도록 하드코딩된 함수를 반환한다
+- 하드 바인딩은 자주 쓰는 패턴이어서 ES5 내장 유틸리티인 `Function.prototype.bind()`는 주어진 this 콘텍스트로 원본함수를 호출하도록 하드코딩된 함수를 반환함
 
+```js
+function foo(something) {
+	console.log(this.a, something);
+	return this.a + something;
+}
 
+var obj = {
+	a : 2
+};
 
+var bar = foo.bind( obj );
+
+var b = bar(3); // 2 3
+console.log(b); // 5
+```
 
 #### API 호출 콘텍스트
+- 많은 라이브러리 함수와 자바스크립트 언어 및 호스트 환경에 내장된 여러 새로운 함수는 대개 '콘텍스트(context)'라 불리는 선택적인 파라미터 제공함
+- 이는 `bind(...)`를 써서 콜백함수의 `this`를 지정할 수 없는 경우를 대비한 일정의 예비책임
+
+```js
+// 다음의 함수는 내부적으로 call(...)이나 apply(...)로 명시적 바인딩 대신하는 경우
+function foo(el) {
+	console.log(el, this.id);
+}
+
+var obj = {
+	id : "멋진 남자"
+};
+
+// foo 호출 시, obj를 this로 사용함
+[1,2,3].forEach (foo, obj);
+// 1 멋진남자 2 멋진 남자 3 멋진 남자
+```
+
+### 2.2.4. new 바인딩
+전통적인 클래스 지향(class-oriented) 언어의 생성자(constructor)는 클래스에 붙은 특별한 메서드로, 다음과 같이 클래스 인스턴스 생성 시, new 연산자로 호출된다.
+그러나 자바스크립트에서 new는 의미상 클래스 지향적인 기능과 아무 상관이 없다.
+```js
+something = new MyClass(..);
+```
+
+**자바스크립트에서의 생성자**
+- 앞에 new 연산자가 있을 때 호출되는 일반 함수에 불과하다
+- 클래스에 붙은 것도 아니고, 클래스 인스턴스화(instantiation) 기능도 없으며, 특별한 함수도 아니다
+- **단지 new를 사용하여 호출할 때 자동으로 붙들려 실행되는 그저 평범한 함수!**
+
+`Number(...)` 같은 부류의 내장 객체함수와 상당수의 옛 함수는 앞에 new를 붙여 호출할 수 있고, 이는 결국 '생성자 호출(constructor call)'이나 다름없다.
+생성자 함수(constructor function)가 아니라(실제로 이런 건 없다), **함수를 생성하는 호출(construction calls of function)** 이라고 해야 옳다.
+
+함수 앞에 new를 붙여 생성자를 호출하면 다음과 같은 일들이 저절로 일어난다
+1. 새 객체가 만들어진다
+2. 새로 생성된 객체의 \[[Prototype]]이 연결된다
+3. 새로 생성된 객체는 해당 함수 호출 시, this로 바인딩 된다
+4. 이 함수가 자신의 또 다른 객체를 반환하지 않는 한, new와 함께 호출된 함수는 자동으로 생성된 객체를 반환한다
+```js
+function foo(a) {
+	this.a = a;
+}
+
+var bar = new foo(2);
+console.log(bar.a); // 2
+```
+
+![new binding](./images/new_binding.jpg)
+- 앞에 new를 붙여 `foo()`를 호출했고, 새로 생성된 객체는 `foo` 호출 시, this에 바인딩된다.
+- **따라서 결국 new는 함수 호출 시 this를 새 객체와 바인딩하는 방법이며, 이것이 new 바인딩(new binding)이다**
+
+
+## 2.3. 모든 건 순서가 있는 법 - this 바인딩 규칙의 우선순위
+지금까지 함수를 호출할 때의 4개지 this 바인딩 규칙을 모두 알아보았다
+> 1. 기본바인딩, 2. 암시적 바인딩, 3. 명시적 바인딩, 4. new 바인딩
+
+이제 호출부 코드를 확인하고 어떤 규칙을 적용할 지 검토하기만 하면 된다. 그러나, 여러 개의 규칙이 중복으로 해당할 땐 어떻게 할까?! 해당 규칙의 우선순위가 미리 정해져 있다.
