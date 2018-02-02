@@ -1,0 +1,132 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>TODO LIST</title>
+		<meta name="description" content="">
+		<meta name="author" content="mjchoi">
+		<style>
+			html, * { margin:0; padding:0; }
+			ul, ol, li, dl, dd, dt { list-style:none; }
+
+		</style>
+	</head>
+	<body>
+		<h1>TODO LIST</h1>
+		<section>
+			<div>
+				<input type="text" id="dataValue">
+				<button onclick="TODO.add(document.getElementById('dataValue').value)">등록하기</button>
+			</div>
+			<dl id="dataList">
+
+			</dl>
+		</section>
+
+<script>
+const TODO = (function() {
+	const MODE = "html";
+	const DATA = [];
+	const STATE = {
+		SCHEDULE : "예정",
+		ONGOING : "진행",
+		COMPLETE : "완료"
+	};
+	Object.freeze(STATE);
+
+	// 데이터 추가
+	const addData = (function() {
+		let idx = 0;
+		return function(value) {
+			if (!value) throw "내용 입력하기!";
+			DATA.push({
+				idx : idx++,
+				state : STATE.SCHEDULE,
+				value : value
+			});
+
+			render();
+		}
+	})();
+
+	const removeData = function(idx) {
+		if ( !idx  ) throw "idx 누락";
+
+		DATA.forEach(function(v, i) {
+			if ( DATA[i].idx === idx ) DATA.splice(i, 1);
+			break;
+		})
+
+		render();
+	};
+
+	// 데이터 수정
+	const editData = ( idx, state ) => {
+		let inputData = {
+			idx : false,
+			state : "",
+			value : ""
+		}
+		if ( !idx || ( typeof idx !== "number" && !isNaN(idx) ) ) {
+			console.log("idx 문제!", idx, typeof idx, isNaN(idx));
+			return false;
+		} else {
+			inputData.idx = idx;
+		}
+
+		for ( let key in STATE ){
+			if ( STATE[key] === state) {
+				inputData.state = state;
+				break;
+			}
+		}
+
+		if ( inputData.idx && inputData.state ) {
+			DATA.filter(function(obj){
+				if ( obj.idx === inputData.idx ) obj.state = inputData.state;
+			})
+		} else {
+			console.log("state 누락");
+			return false;
+		}
+
+		render();
+	};
+
+	const render = (function() {
+		const renderHtml = () => {
+			const element = document.getElementById("dataList");
+			let addDataList = "<dt><span class='index'>번호</span>내용<span class='state'>진행상황</span><span class='remove'>삭제</span></dt>";
+			if ( DATA.length > 0 ) {
+				DATA.forEach( v => {
+					addDataList += `<dd><span class="index">${v.idx}</span> ${v.value} <button class="state" onclick="TODO.edit(${v.idx},'${v.state}')">${v.state}</button><button class="remove" onclick="TODO.remove(${v.idx})">삭제</button></dd>`;
+				})
+			}
+			element.innerHTML = addDataList;
+			console.log(DATA);
+		};
+
+		const renderConsole = () => {
+			if ( DATA.length > 0 ) DATA.forEach( v => { console.log(v); });
+		};
+
+		return () => {
+			if ( MODE === "html") {
+				renderHtml();
+			} else {
+				renderConsole();
+			}
+		}
+	})();
+
+	render();
+
+	return {
+		add : addData,
+		edit : editData,
+		remove : removeData
+	}
+})();
+</script>
+	</body>
+</html>
