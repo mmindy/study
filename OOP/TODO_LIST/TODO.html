@@ -18,30 +18,43 @@
 				<input type="text" id="dataValue">
 				<button onclick="TODO.add(document.getElementById('dataValue').value)">등록하기</button>
 			</div>
-			<dl id="dataList">
-
-			</dl>
+			<dl id="dataList"></dl>
+			<p id="notice"></p>
 		</section>
 
 <script>
 const TODO = (function() {
-	const MODE = "html";
+	let MODE = "html";
 	const DATA = [];
-	const STATE = {
-		SCHEDULE : "예정",
-		ONGOING : "진행",
-		COMPLETE : "완료"
+	const STATE = ["예정", "진행", "완료"];
+
+	// idx 체크
+	const checkIdx = idx => {
+		let validIdx = false;
+		DATA.forEach(function(v, i) {
+			if ( DATA[i].idx === idx ) validIdx = true;
+		})
+		if ( !validIdx || idx < 0 || ( typeof idx !== "number" && isNaN(idx) ) ) warning("잘못된 idx 값");
 	};
-	Object.freeze(STATE);
+
+	const warning = msg => {
+		if ( MODE === "html") {
+			const printBox = document.getElementById("notice");
+			printBox.value = msg;
+		} else {
+			console.log(msg);
+		}
+		return;
+	}
 
 	// 데이터 추가
-	const addData = (function() {
+	const addData = (() => {
 		let idx = 0;
-		return function(value) {
+		return value => {
 			if (!value) throw "내용 입력하기!";
 			DATA.push({
 				idx : idx++,
-				state : STATE.SCHEDULE,
+				state : STATE[0],
 				value : value
 			});
 
@@ -49,45 +62,49 @@ const TODO = (function() {
 		}
 	})();
 
+	// 데이터 삭제
 	const removeData = function(idx) {
-		if ( !idx  ) throw "idx 누락";
+		checkIdx(idx);
+		if (DATA.length <= 0) return false;
 
 		DATA.forEach(function(v, i) {
 			if ( DATA[i].idx === idx ) DATA.splice(i, 1);
-			break;
+			// break;
 		})
 
 		render();
 	};
 
 	// 데이터 수정
-	const editData = ( idx, state ) => {
+	const editData = idx => {
 		let inputData = {
-			idx : false,
-			state : "",
-			value : ""
+			idx : null,
+			state : null,
+			// value : null
 		}
-		if ( !idx || ( typeof idx !== "number" && !isNaN(idx) ) ) {
-			console.log("idx 문제!", idx, typeof idx, isNaN(idx));
-			return false;
-		} else {
-			inputData.idx = idx;
-		}
+		let stateIdx = 0;
+		checkIdx(idx);
+		inputData.idx = idx;
 
-		for ( let key in STATE ){
-			if ( STATE[key] === state) {
-				inputData.state = state;
-				break;
+		// 변경될 state 설정
+		DATA.filter(function(obj, i){
+			if (obj.idx === inputData.idx) {
+				STATE.forEach((state, i) => {
+					if (state === obj.state) stateIdx = ++i;
+				})
+				if ( stateIdx === STATE.length ) stateIdx = 0;
+				inputData.state = STATE[stateIdx];
 			}
-		}
+		});
 
-		if ( inputData.idx && inputData.state ) {
-			DATA.filter(function(obj){
-				if ( obj.idx === inputData.idx ) obj.state = inputData.state;
+		if ( inputData.idx >= 0 && inputData.state ) {
+			DATA.filter(function(obj, i){
+				if ( obj.idx === inputData.idx ) {
+					obj.state = inputData.state;
+				}
 			})
 		} else {
-			console.log("state 누락");
-			return false;
+			warning("state 누락");
 		}
 
 		render();
@@ -96,14 +113,15 @@ const TODO = (function() {
 	const render = (function() {
 		const renderHtml = () => {
 			const element = document.getElementById("dataList");
+			const inputBox = document.getElementById('dataValue');
 			let addDataList = "<dt><span class='index'>번호</span>내용<span class='state'>진행상황</span><span class='remove'>삭제</span></dt>";
 			if ( DATA.length > 0 ) {
 				DATA.forEach( v => {
-					addDataList += `<dd><span class="index">${v.idx}</span> ${v.value} <button class="state" onclick="TODO.edit(${v.idx},'${v.state}')">${v.state}</button><button class="remove" onclick="TODO.remove(${v.idx})">삭제</button></dd>`;
+					addDataList += `<dd><span class="index">${v.idx}</span> ${v.value} <button class="state" onclick="TODO.edit(${v.idx})">${v.state}</button><button class="remove" onclick="TODO.remove(${v.idx})">삭제</button></dd>`;
 				})
 			}
 			element.innerHTML = addDataList;
-			console.log(DATA);
+			inputBox.value = "";
 		};
 
 		const renderConsole = () => {
@@ -124,7 +142,10 @@ const TODO = (function() {
 	return {
 		add : addData,
 		edit : editData,
-		remove : removeData
+		remove : removeData,
+		setMode : function(mode) {
+			MODE = mode;
+		}
 	}
 })();
 </script>
