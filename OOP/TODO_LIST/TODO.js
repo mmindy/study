@@ -1,11 +1,11 @@
 const TODO = (() => {
+	const DATA = [];
 	const MODE_HTML = "html";
 	const MODE_CONSOLE = "console";
-	const DATA = [];
+	const STATE = ["예정", "진행", "완료"];
+	Object.freeze(STATE);
 
 	const module = (() => {
-		const STATE = ["예정", "진행", "완료"];
-
 		const checkIdx = idx =>{
 			let validIdx = false;
 			DATA.forEach( v => {
@@ -91,13 +91,22 @@ const TODO = (() => {
 		}
 
 		const render = (() => {
-			const renderHtml = () => {
+			const renderHtml = stateNum => {
 				const element = document.getElementById("dataList");
 				const inputBox = document.getElementById('dataValue');
+				let state;
+				if ( !isNaN(stateNum) ) state = STATE[stateNum];
+
 				let dataList = "<dt><span class='index'>번호</span>내용<span class='option'><span class='state'>진행상황</span><span class='remove'>삭제</span></span></dt>";
 				if ( DATA.length > 0 ) {
 					DATA.forEach( v => {
-						dataList += `<dd><span class="index">${v.idx}</span> ${v.value} <span class="option"><button class="state" onclick="TODO.edit(${v.idx})">${v.state}</button><button class="remove" onclick="TODO.remove(${v.idx})">삭제</button></span></dd>`;
+						if ( state ){
+							if ( state === v.state ) {
+								dataList += `<dd><span class="index">${v.idx}</span> ${v.value} <span class="option"><button class="state" onclick="TODO.edit(${v.idx})">${v.state}</button><button class="remove" onclick="TODO.remove(${v.idx})">삭제</button></span></dd>`;
+							}
+						} else {
+							dataList += `<dd><span class="index">${v.idx}</span> ${v.value} <span class="option"><button class="state" onclick="TODO.edit(${v.idx})">${v.state}</button><button class="remove" onclick="TODO.remove(${v.idx})">삭제</button></span></dd>`;
+						}
 					})
 				}
 				element.innerHTML = dataList;
@@ -105,21 +114,31 @@ const TODO = (() => {
 				inputBox.focus();
 			};
 
-			const renderConsole = () => {
+			const renderConsole = stateNum => {
+				let state;
+				if ( !isNaN(stateNum) ) state = STATE[stateNum];
+
 				if ( DATA.length > 0 ) DATA.forEach( v => {
-					console.log(`${v.idx} - [ ${v.state} ] - ${v.value}`);
+					if ( state ){
+						if ( state === v.state ) {
+							console.log(`${v.idx} - [ ${v.state} ] - ${v.value}`);
+						}
+					} else {
+						console.log(`${v.idx} - [ ${v.state} ] - ${v.value}`);
+					}
 				});
 			};
 
-			return mode => {
-				if ( controller.getMode() === MODE_HTML ) renderHtml();
-				else renderConsole();
+			return num => {
+				let stateNum;
+				if ( (num >= 0 && num < STATE.length) && !isNaN(num)) stateNum = num;
+				if ( controller.getMode() === MODE_HTML ) renderHtml(stateNum);
+				else renderConsole(stateNum);
 			}
 		})();
 
 		const warning = (() => {
 			const warningHtml = msg => {
-				console.log("warn html : " +msg);
 				const printBox = document.getElementById("notice");
 				printBox.innerText = msg;
 			}
@@ -144,30 +163,35 @@ const TODO = (() => {
 	const controller = (() => {
 		let MODE = MODE_HTML;
 
-		const render = () => {
-			view.render();
-		}
+		const render = () => { view.render(); };
+
 		const add = value => {
 			module.add(value);
 			render();
-		}
+		};
+
 		const edit = idx => {
 			module.edit(idx);
 			render();
-		}
+		};
+
 		const remove = idx => {
 			module.remove(idx);
 			render();
-		}
+		};
+
+		const sort = num => { view.render(num); };
 
 		const changeMode = () => {
 			MODE = ( MODE === MODE_HTML ) ? MODE_CONSOLE : MODE_HTML;
 			view.modePrint()
-		}
+		};
+
 		return {
 			add : add,
 			edit : edit,
 			remove : remove,
+			sort : sort,
 			changeMode : changeMode,
 			getMode : () => MODE
 		}
@@ -180,6 +204,7 @@ const TODO = (() => {
 		add : controller.add,
 		edit : controller.edit,
 		remove : controller.remove,
+		sort : controller.sort,
 		changeMode : controller.changeMode
 	}
 })();

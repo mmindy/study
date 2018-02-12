@@ -10,7 +10,7 @@
 			ul, ol, li, dl, dd, dt { list-style:none; }
 
 			.wrap { width:500px; margin:auto; }
-			section div { padding:5px 0; margin-bottom:10px; }
+			section .inputBox { padding:5px 0; margin-bottom:10px; }
 			section #dataList { border-bottom:1px solid #ddd; }
 			section #dataList dt { overflow:hidden; padding:7px 0; background-color:#e8e8e8; }
 			section #dataList dd { overflow:hidden; padding:7px 0; }
@@ -19,6 +19,7 @@
 			section #dataList .option { width:30%; float:right; text-align:center; }
 			section #dataList .option span { width:50%; }
 			section #dataList .option button { width:40%; margin:0 5%; }
+			section .sorting { margin-top:10px; text-align:right; }
 			section #notice { padding:10px; color:#d50600; text-align:center; }
 		</style>
 	</head>
@@ -27,12 +28,19 @@
 		<div class="wrap">
 			<h1>TODO LIST</h1>
 			<section>
-				<div>
+				<div class="inputBox">
 					<input type="text" id="dataValue">
 					<button onclick="TODO.add(document.getElementById('dataValue').value)">등록하기</button>
 					<button onclick="TODO.changeMode()" id="mode">모드변경</button>
 				</div>
 				<dl id="dataList"></dl>
+				<div class="sorting">
+					모아 보기 :
+					<button onclick="TODO.sort(0)">예정 일정</button>
+					<button onclick="TODO.sort(1)">진행중 일정</button>
+					<button onclick="TODO.sort(2)">완료 일정</button>
+					<button onclick="TODO.sort()">전체 보기</button>
+				</div>
 				<p id="notice"></p>
 			</section>
 		</div>
