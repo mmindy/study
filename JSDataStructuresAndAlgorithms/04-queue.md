@@ -98,7 +98,7 @@ function PriorityQueue() {
   };
 
   this.dequeue = function() {
-    items.shift();
+    return items.shift();
   }
   this.front = function() {
     return items[0];
