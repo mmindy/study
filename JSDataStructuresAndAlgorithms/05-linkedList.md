@@ -1,4 +1,4 @@
-# 4. 연결 리스트(Linked List)
+# 5. 연결 리스트(Linked List)
 
 - 연결 리스트는 동적 자료 구조여서, 필요할 때마다 원소를 추가/삭제할 수 있음
 - 배열(리스트)의 장단
@@ -45,7 +45,7 @@ function LinkedList() {
 - `size()` : 원소 개수 반환
 - `toString()` : 연결 리스트는 원소를 노드에 담아두기 때문에, 값만 출력하려면 기존 객체에서 상속한 `toString`메서드 재정의해야 함
 
-## 리스트 끝에 원소 추가하기
+### 리스트 끝에 원소 추가하기
 ```js
 // linked list 의 핵심부분
 function LinkedList() {
@@ -95,7 +95,7 @@ list.append(15);
 
 ### 원소 삭제
 삭제하려는 원소가 리스트의 첫번째 원소인지 아닌지에 따라 두 가지로 정의.
-- 1) 원소 위치 기준 삭제 / 2) 원소 값 기준 삭제
+- 1_원소 위치 기준 삭제 / 2_원소 값 기준 삭제
 
 #### 원소 위치 기준 삭제 `removeAt(위치)`
 ```js
@@ -164,7 +164,7 @@ function LinkedList() {
 }
 ```
 
-## 임의의 위치에 원소 삽입하기
+### 임의의 위치에 원소 삽입하기
 ```js
 function LinkedList() {
   var Node = function(element) {
@@ -257,7 +257,7 @@ function LinkedList() {
 }
 ```
 
-## 그 밖의 메소드 구현
+### 그 밖의 메소드 구현
 ```js
 function LinkedList() {
   var Node = function(element) {
@@ -386,4 +386,116 @@ function LinkedList() {
   this.print = function() {};
   ///  
 }
+```
+## 이중 연결 리스트(Doubly Linked List)
+
+- 연결 리스트는 다음 노드의 연결 정보만 갖고 있지만, 이중 연결 리스트는 다음 노드와 이전 노드 2개의 연겨 정보를 이중으로 갖음
+
+**이중 연결 리스트에서 달라지는 것**
+
+```js
+function DoublyLinkedList() {
+  var Node = function(element) {
+    this.element = element;
+    this.next = null;
+    this.prev = null; // NEW
+  }
+
+  var length = 0;
+  var head = null;
+  var tail = null; // NEW 마지막 원소
+
+  // 메소드 서술
+}
+```
+
+- 이중 연결 리스트에서는 처음에서 끝, 끝에서 처음, 양방향으로 리스트 순회가 가능함   
+  (어떤 노드의 이전/이후 노드를 찾아갈 수 있음)
+- 단방향인 연결 리스트(순회 시 원소 찾지 못하면 맨 처음으로 돌아가야함)와 비교하여 강점 갖음
+
+### 임의의 위치에 원소 삽입하기
+
+```js
+///
+  this.insert = function(position, element) {
+    // 범위 값 확인
+    if (position >= 0 && position <= length) {
+      var node = new Node(element);
+      var current = head;
+      var previous;
+      var index = 0;
+
+      if (position === 0) { // 첫번째 위치에 추가
+        if (!head) { // NEW
+          head = node;
+          tail = node;
+        } else {
+          node.next = current;
+          current.prev = node; // NEW
+          head = node;
+        }
+      } else if (position === length) { // NEW 마지막 원소
+        current = tail;
+        current.next = node;
+        node.prev = current;
+        tail = node;
+      } else {
+        while (index++ < position) {
+          previous = current;
+          current = current.next;
+        }
+
+        node.next = current;
+        previous.next = node;
+        current.prev = node; // NEW
+        node.prev = previous; // NEW
+      }
+
+      length++;
+    
+      return true;
+    
+    } else {
+      return false;
+    }
+  }
+///
+```
+
+### 원소 삭제
+```js
+///
+  this.remove = function(position) {
+    // 범위 값 확인
+    if ( position > -1 && position < length ) {
+      var current = head;
+      var previous;
+      var index = 0;
+
+      // remove first element
+      if ( position === 0 ) {
+        head = current.next; 
+
+        if (length === 1) {
+          tail = null;
+        } else {
+          head.prev = null;
+        }
+      } else if ( position === length - 1) {
+        current = tail;
+        tail = current.prev;
+        tail.next = null
+      } else {
+        
+        while ( index++ < position ) {
+          previous = current; 
+          current = current.next;
+        }
+
+        previous.
+
+      }
+    }
+  }
+///
 ```
