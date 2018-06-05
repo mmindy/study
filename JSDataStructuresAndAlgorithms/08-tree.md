@@ -25,7 +25,7 @@
 ### BinarySearchTree 클래스 만들기
 ```js
 function BinarySearchTree () {
-  var Node = funciton(key) {
+  var Node = function(key) {
     this.key = key;
     this.left = null;
     this.right = null;
@@ -50,7 +50,7 @@ function BinarySearchTree () {
 ```js
 
 function BinarySearchTree () {
-  var Node = funciton(key) {
+  var Node = function(key) {
     this.key = key;
     this.left = null;
     this.right = null;
@@ -60,15 +60,15 @@ function BinarySearchTree () {
 
   var insertNode = function(node, newNode) {  // 프라이빗 헬퍼 함수
     if (newNode.key < node.key) { // key값 비교,현재 노드보다 작은 경우
-      if (node.left === null) {
+      if (node.left === null) { // left 없을 경우,
         node.left = newNode;
-      } else {
+      } else { // 있을 경우 재귀 호출
         insertNode(node.left, newNode);
       }
-    } else {
-      if (node.right === null) {
+    } else {  
+      if (node.right === null) { // right 없을 경우
         node.right = newNode;
-      } else {
+      } else { // 있을 경우 재귀 호출
         insertNode(node.right, newNode);
       }
     }
@@ -84,5 +84,160 @@ function BinarySearchTree () {
     }
   }
 }
+```
 
+```js
+var tree = new BinarySearchTree();
+tree.insert(11);
+tree.insert(7);
+tree.insert(15);
+tree.insert(5);
+tree.insert(3);
+tree.insert(9);
+tree.insert(8);
+tree.insert(10);
+tree.insert(13);
+tree.insert(12);
+tree.insert(14);
+tree.insert(20);
+tree.insert(18);
+tree.insert(25);
+```
+
+## 트리 순회(traversal, 워킹 walking)
+
+- 트리의 모든 노 드 방문하여 각 노드마다 특정 작업 순회하는 것
+- 트리를 순회하는 방법에 따라 '중위', '전위', '후위'로 나뉨
+
+
+### 중위 순회(in-order traversal)
+- 이진탐색트리(BST)의 노드를 오름차순, 작은 값에서 큰 값 방향으로 방문
+- 트리 정렬 시 사용됨
+
+
+```js
+function BinarySearchTree () {
+  var Node = function(key) {
+    this.key = key;
+    this.left = null;
+    this.right = null;
+  }
+
+  var root = null;
+
+  var insertNode = function(node, newNode) {  // 프라이빗 헬퍼 함수
+    if (newNode.key < node.key) { // key값 비교,현재 노드보다 작은 경우
+      if (node.left === null) { // left 없을 경우,
+        node.left = newNode;
+      } else { // 있을 경우 재귀 호출
+        insertNode(node.left, newNode);
+      }
+    } else {  
+      if (node.right === null) { // right 없을 경우
+        node.right = newNode;
+      } else { // 있을 경우 재귀 호출
+        insertNode(node.right, newNode);
+      }
+    }
+  };
+  
+  this.insert = function(key) {
+    var newNode = new Node(key); // Node instance 생성 및 포인터 초기화
+
+    if (root === null) {  // 추가할 key가 해당 트리 최초의 노드일 경우 root로 세팅
+      root = newNode;
+    } else {  // 아닐 경우 프라이빗 헬퍼 함수 호출
+      insertNode(root, newNode);
+    }
+  }
+
+
+  // 중위 순회
+  var inOrderTraverseNode = function(node, callback) {
+    if (node != null) {
+      inOrderTraverseNode(node.left, callback);
+      callback(node.key);
+      inOrderTraverseNode(node.right, callback);
+    }
+  };
+
+  this.inOrderTraverse = function(callback) { // callback은 노드 방문 시 수행할 작업들
+    inOrderTraverseNode(root, callback);
+  }
+}
+
+```
+- BST 구현 알고리즘은 대부분 재귀호출을 사용하므로, 프라이빗 헬퍼 함수를 따로 만들어 node와 callback을 전달함
+
+
+cf. 방문자패턴(visitor pattern)
+- 알고리즘을 객체 구조에서 분리시키는 디자인 패턴
+- 참고 사이트 : [wiki-비지터패턴](https://ko.wikipedia.org/wiki/%EB%B9%84%EC%A7%80%ED%84%B0_%ED%8C%A8%ED%84%B4) / [http://leetaehoon.tistory.com/63](http://leetaehoon.tistory.com/63)
+
+
+### 전위 순회(pre-order traversal)
+
+```js
+function BinarySearchTree () {
+  var Node = function(key) {
+    this.key = key;
+    this.left = null;
+    this.right = null;
+  }
+
+  var root = null;
+
+  var insertNode = function(node, newNode) {  // 프라이빗 헬퍼 함수
+    if (newNode.key < node.key) { // key값 비교,현재 노드보다 작은 경우
+      if (node.left === null) { // left 없을 경우,
+        node.left = newNode;
+      } else { // 있을 경우 재귀 호출
+        insertNode(node.left, newNode);
+      }
+    } else {  
+      if (node.right === null) { // right 없을 경우
+        node.right = newNode;
+      } else { // 있을 경우 재귀 호출
+        insertNode(node.right, newNode);
+      }
+    }
+  };
+  
+  this.insert = function(key) {
+    var newNode = new Node(key); // Node instance 생성 및 포인터 초기화
+
+    if (root === null) {  // 추가할 key가 해당 트리 최초의 노드일 경우 root로 세팅
+      root = newNode;
+    } else {  // 아닐 경우 프라이빗 헬퍼 함수 호출
+      insertNode(root, newNode);
+    }
+  }
+
+
+  // 중위 순회
+  var inOrderTraverseNode = function(node, callback) {
+    if (node != null) {
+      inOrderTraverseNode(node.left, callback);
+      callback(node.key);
+      inOrderTraverseNode(node.right, callback);
+    }
+  };
+
+  this.inOrderTraverse = function(callback) { // callback은 노드 방문 시 수행할 작업들
+    inOrderTraverseNode(root, callback);
+  }
+
+  // 전위 순회
+  var preOrderTraverseNode = function(node, callback) {
+    if ( node !== null ){
+      callback(node.key);
+      preOrderTraverseNode(node.left, callback);
+      preOrderTraverseNode(node.right, callback);
+    }
+  };
+
+  this.preOrderTraverse = function(callback) {
+    preOrderTraverseNode(root, callback);
+  }
+}
 ```
