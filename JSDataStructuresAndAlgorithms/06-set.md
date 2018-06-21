@@ -330,3 +330,27 @@ this.difference = function(otherSet) {
   return differenceSet;
 }
 ```
+
+### 부분집합(subset)
+
+- A ⊆ B = ∀ x { x ∈ A ⇒ x ∈ B }
+- A의 원소가 반드시 B에 존재해야 함
+
+```js
+this.subset = function(otherSet) {
+  if (this.size() > otherSet.size()) {
+    return false;
+  } else {
+    var values = this.values();
+
+    for (var i = 0; i<values.length; i++){
+      if (!otherSet.has(values[i])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+}
+
+```
