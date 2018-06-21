@@ -184,13 +184,14 @@ function Set() {
     return Object.keys(items).length;
   }
 
-  this.values = funtion() {
+  this.values = function() {
     return Object.keys(items);
   }
 }
 ```
 
 ```js
+// 모든 브라우저 사용
 this.valueLegacy  = function() {
   var keys = [];
   for (var key in items) {
@@ -201,7 +202,7 @@ this.valueLegacy  = function() {
 }
 ```
 
-## Set 클래스 사용
+### Set 클래스 사용
 ```js
 var set = new Set();
 
@@ -219,3 +220,113 @@ set.remove(2);
 set.remove(1);
 ```
 
+배열로 변환
+```js
+function Set() {
+  var items = [];
+
+  this.has = function(value) {
+    for (var i = 0; i < items.length; i++) {
+      if(items[i] == value) return true;
+    }
+    return false;
+  }
+
+  this.add = function(value) {
+    if (!this.has(value)) {
+      items.push(value);
+      return true;
+    }
+    return false;
+  }
+
+  this.remove = function(value) {
+    for (var i = 0; i < items.length; i++) {
+      if(items[i] == value) {
+        items.splice(i, 1);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  this.clear = function() {
+    items = [];
+  }
+
+  this.size = function() {
+    return items.length;
+  }
+
+  this.values = function() {
+    return items;
+  }
+}
+```
+
+
+## 집합 연산
+**사용 가능한 연산**
+- 합집합 : 두 집합 중 하나 이상에 포함된 원소들로 구성된 집합
+- 교집합 : 두 집합 모두에 포함된 원소들로 구성된 집합
+- 차집합 : 첫 번째 집합에만 포함된 원소들로 구성된 집합(첫 번째 집합 - 두 번째 집합)
+- 부분집합 : 어떤 집합이 다른 집합의 일부인지 확인
+
+
+### 합집합(union)
+- A ∪ B = { x | x ∈ A Vx ∈ B }
+
+```js
+this.union = function(otherSet) {
+  var unionSet = new Set();
+
+  var values = this.values();
+  for (var i = 0; i < values.length; i++ ){
+    unionSet.add(values[i]);
+  }
+
+  valuse = otherSet.values();
+  for(var j = 0; j < values.length; j++) {
+    unionSet.add(values[j]);
+  }
+
+  return unionSet;
+}
+```
+
+### 교집합(intersection)
+- A ∩ B = { x | x ∈ A Λ x ∈ B }
+
+```js
+this.intersection = function(otherSet) {
+  var intersectionSet = new Set();
+
+  var values = this.values();
+  for ( var i = 0; i < values.length; i++ ) {
+    if (otherSet.has(values[i])) {
+      intersectionSet.add(values[i]);
+    }
+  }
+
+  return intersectionSet;
+}
+```
+
+### 차집합(difference)
+- A - B = { x | x ∈ A Λ x ∉ B }
+
+```js
+this.difference = function(otherSet) {
+  var differenceSet = new Set();
+
+  var values = this.values();
+  for ( var i = 0; i < values.length; i++) {
+    if (!otherSet.has(values[i])) {
+      differenceSet.add(values[i]);
+    }
+  }
+
+  return differenceSet;
+}
+```
