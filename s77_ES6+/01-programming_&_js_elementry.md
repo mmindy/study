@@ -1,6 +1,6 @@
 ## What did you do that?
 
-답을 내기 위한 개념들,
+**이에 대한 답을 내기 위한 개념들,**
 - **철학** : 합리주의 / 상대주의 : 모두가 동의하지만, 상황에 따라 달라질 수 있음
 - 철학 위에 **가치**, **원칙**, **패턴**  
   - **가치** : 의사소통, 단순함, 유연함
@@ -10,43 +10,50 @@
 - **동기** : 돈(비용) / 시간
 
 ## Program & timing
+### 컴파일 언어의 생명주기  
 
-컴파일 언어의 생명주기
-- ▼ language code (text file)     >>    lint time
-- ▼ machine language (compiler)   >>    compile time  | (어떻게 적재되지 않은 데이터(메모리 없음)를 컴파일하는가) virtual memory 기반으로 컴파일
-- ▼ file 
-- ▼ load(file을 메모리에 적재)                          | **Vtable Mapping** : 이 순간 컴파일 시 생성된 가짜 메모리(virtual memory)와 진짜 메모리와 맵핑함
-- ▼ run                           >>    run time
-- ▲ terminate
+- ▼ **`language code`** (text file)     >>>    [ lint time ]    
+  : lint time : compile 이전 에러 있을 법한 곳 잡음
+- ▼ **`machine language`** (compiler, 번역)   >>>    [ compile time ]   
+  : (어떻게 적재되지 않은 데이터(메모리 없음)를 컴파일하는가) virtual memory 기반으로 컴파일
+- ▼ **`file`** 
+- ▼ **`load`** (file을 메모리에 적재, 여기부터 프로그램이라고 말함)  
+  : Vtable Mapping : 이 순간 컴파일 시 생성된 가짜 메모리(virtual memory)와 진짜 메모리와 맵핑함
+- ▼ **`run`**   >>>    [ run time ]
+- ■ **`terminate`**
 
-- ++ context error : 런타임까지 걸리지 않은 에러. 코드에서는 문제가 없으나 의사소통에서 문제 있는 경우
-- 런타임 에러의 경우, 에러 원인 찾기 어려움
+++ context error : 런타임까지 걸리지 않은 논리적 오류. 코드에서는 문제가 없으나 의사소통에서 문제 있는 경우  
+++ 런타임 에러의 경우, 에러 원인 찾기 어려움
 
-> compile 시
-- (어떻게 적재되지 않은 데이터(메모리 없음)를 컴파일하는가) virtual memory 기반으로 컴파일
-> load 시 
-- 1) Esseintial definition loading : 중요한 애들 먼저
-- 2) vtable mapping
-- 3) run 
-- 4) runtime definition loading : 런타임의 새로운 정의 로딩
+**compile 시**
+- (어떻게 적재되지 않은 데이터(메모리 없음)를 컴파일하는가) virtual memory 기반으로 컴파일  
+
+**load 시**  
+1) Esseintial definition loading : 중요한 애들 먼저
+2) vtable mapping
+3) run 
+4) runtime definition loading : 런타임의 새로운 정의 로딩
 
 
 ## Script program
+### 스크립트 언어의 생명주기
 
-스크립트 언어의 생명주기
-- ▼ language code (text file)     >>    lint time
-- ▼ file 
-- ▼ load(file을 메모리에 적재)  
-- ▼ machine language (compiler)
-- ▼ run                           >>    run time
-- ▲ terminate
+- ▼ **`language code`** (text file)     >>>    lint time
+- ▼ **`file`** 
+- ▼ **`load(file을 메모리에 적재)`**  
+- ▼ **`machine language (compiler)`**
+- ▼ **`run`**                           >>>    run time
+- ■ **`terminate`**
 
-> run time
+
+#### run time
+```
 1) declare base function, class
 2) declare extended function, class - -run time : 
 3) use function, class
-- 1-2: 두개 비교 시, 1은 static time - 2는 runtime
-  2-3: 두개 비교 시, 2은 static time - 3는 runtime
+```
+- 1-2 : 두개 비교 시, 1은 static time - 2는 runtime  
+  2-3 : 두개 비교 시, 2은 static time - 3는 runtime
 - 스크립트언어는 컴파일 타임이 없어서 레이어로 처리. 단계적으로 처리됨
 
 > 컴퓨터 과학
@@ -57,22 +64,20 @@
 ## Run Time
 : load 이후에 실행, 메모리에 적재되는 시점
 - **Loading** --  Memory : 로딩 시 메모리에 명령과 데이터(값)으로 적재
-- **Instruction Fetch & Decoding** -- CPU : 외부 버스 통해 들어와(fetch), 디코더로 디코딩(decoding), 제어정보(연산유닛)에서 연산 실행  
-  - 1) 이순간 메모리에 적재되어 있던 값들이 데이터유닛으로 전달,   
-    2) 제어정보로 넘어온 명령 데이터에 맞는 데이터를 제어정보로 전달하여 연산,  
-    3) 제어정보에서 도출된 값을 다시 메모리에 적재
+- **Instruction Fetch & Decoding** -- CPU : 외부 버스 통해 들어와(fetch), 디코더로 디코딩(decoding), 제어정보(연산유닛)에서 연산 실행   
+  1) 이순간 메모리에 적재되어 있던 값들이 데이터유닛으로 전달,   
+  2) 제어정보로 넘어온 명령 데이터에 맞는 데이터를 제어정보로 전달하여 연산,  
+  3) 제어정보에서 도출된 값을 다시 메모리에 적재
 - **Execution**
 
 
 
-
-## Memory, address, variable, dispatch
+## Memory, Address, Pointer, Variable, Dispatch
 - dispatch: 주소로 부터 값을 얻음
 
-개발 시 효율 위해 참조의 참조 사용하는 데 왜?
+개발 시 효율 위해 참조의 참조 사용하는 데 왜?  
 
 메모리 모델
-
 ```
 A = "test"
 &A = 11 // 메모리 주소값
@@ -144,7 +149,7 @@ B.value = &K
 - 제어문으로 흐름 제어
   : 조건문, 반복문 등으로 흐름 제어 가능
 
-## 녀ㅠ 리ㅐㅈ
+## Sub flow
 - 함수 등으로 제어
 
 
