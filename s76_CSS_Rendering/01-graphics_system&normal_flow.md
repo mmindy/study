@@ -90,6 +90,7 @@
 # Normal Flow
 - 고유 명사
 - css2.1 visual formatting model (positioning schemes & normal flow)
+- [MDN](https://developer.mozilla.org/ko/docs/Web/Guide/CSS/Visual_formatting_model)
 
 ### Normal Flow를 그리는 공식
 1. **B**lock **F**ormatting **C**ontext 
