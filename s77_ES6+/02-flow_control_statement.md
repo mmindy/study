@@ -1,71 +1,84 @@
-문작성 시, 레코드로 변경 > 이를 처리
-statement - record
+# Flow Control Statement
 
-문은 하나의 힌트일 뿐, 문을 바탕으로 complition
+### Record, Completion Record
+- 자바스크립트는 문을 해석할때, 하나의 실행 단위(처리 과제)로 인식 (식은 하나의 값으로 수렴)  
+  - 여기서 과제를 record라고 함
+  - 문 하나를 record로 저장, 하나씩 소비해가며 해결해감
+- statement - record : 레코드 변환과 등록, 처리 과정이 자바스크립트의 주
+
+- **Flow Control Statement** : flow 컨트롤 하는 문들은 **completion record**로 등록
+
+- 자바스크립트는 우리가 작성한 문을 record / completion record 로 등록하는데,  
+  completion record는 우리가 작성한 문 중에 어떤 것을 control statement로 사용할 지 선택함
+
 
 ## Direct Flow Control (직접 flow 컨트롤)
 
 ### 직접 flow 컨트롤 명령어, `Label`
 
-#### Identifier 
+#### Identifier 식별자
+- 자바스크립트 변수 규칙과 같으나, $로 시작, 포함할 수 없음!
+- 전체 문서에 label 외, 문이 없으면 syntax error  
+  : 브라우저에서 label은 문으로 인정하지 않음 / record X 이에 달리는 태그 같은 애  
+  : 공문(`;`)만 입력하더라도 OK  
+  ```js
+  abc :  //  X 
+  ```
+- label은 runtime이 아닌 parsing 시점에 인식되기 때문에, 같은 스코프에 같은 이름 두개 등장X
+  ```js
+  abc: 3;
+  abc: 3; // 중복 선언 불가 - syntax error
+  ```
 
-- 자바스크립트 변수 규칙과 같으나, $로 시작할 수 없다
-
-- 전체 문서에 label 외, 문이 없으면 syntax error
-  : 브라우저에서 label은 문으로 인정하지 않음
-  : 공문(`;`)만 입력하더라도 OK
-
-```html
-<script>
-abc : 
-</script>
-```
-
-- label은 같은 스코프에 두개 등장X
-```html
-<script>
-abc: 3;
-abc: 3; // 중복 선언 불가
-</script>
-```
-
-#### Scope
-- label의 스코프는 함수로 결정(블록 스코프X)
-- 대신 label scope 존재!
-```js
-abc : {
-  abc : 3;  
-} // 중문과 다른 개념
-```
-
+#### Scope - label의 scope
 **Label shadow / static parsing**
-- 아래 경우, 오류
-- `break abc;`라고 써주어야 OK - `break '레이블명'`
-```js
-abc : {
-  console.log("start")
-  if (true) {
-    break;  
-  }
-  console.log("end");
-}
-```
+- label의 스코프는 함수로 결정 (블록(`{ }`) 스코프X)
+- 대신 label scope 존재! : label 바로 뒤에 중괄호  
+  - label 스코프 안에서는 영역 나뉘기 때문에 같은 이름으로 선언 가능!
+  ```js
+  abc : {
+    abc : 3;  
+  } // label scope : 중문과 다른 개념
+  ```
+  - label scope 생성하며 label shadowing이 일어나기 때문
 
 **Label Range & Set**
-- **Auto Label**
-  - [itertation, switch, undefinded named label]를 사용하여 label range를 자동으로 설정
+- Label Range : label 영역을 나누는 것
+  ```js
+  // 오류
+  abc : {
+    console.log("start")
+    if (true) {
+      break;  
+    }
+    console.log("end");
+  }
 
-```js
-console.log('0');
-abc : 
-if ( true ) {
-  break abc;
-}
+  /// 이렇게 해야 OK
+  abc : {
+    console.log("start")
+    if (true) {
+      break abc;  
+    }
+    console.log("end");
+  }
+  ```
+- Label Range를 인식하려면 label set을 알아야 함!  
+  - 어떻게 해서 label range를 생성하는가
+  1) **Auto Label** : label에서 다음 label까지가 하나의 range 이룸
+  2) **iteration(for,while), switch** : 이들이 나오면, 얘네가 label range 제한할 수 있음(얘네 직전까지 range 범위 잘림)
+  3) **undefinded named label** : 
+      ```js
+      console.log('0');
+      abc : 
+      if ( true ) {
+        break abc;
+      }
 
-console.log('1');
-bbb:
-console.log('2');
-```
+      console.log('1');
+      bbb:
+      console.log('2');
+      ```
 
 ```js
 for ( var i = 0; i < 10; i++) {
