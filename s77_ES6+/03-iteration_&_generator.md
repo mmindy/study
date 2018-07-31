@@ -151,17 +151,17 @@ loop(iter, console.log);
 ### 내장 반복 처리기
 - 해체구문은 일반적으로 할당쪽(변수선언)에 쓰임
 
-### Array destructuring 배열 해체
+#### Array destructuring 배열 해체
 ```js
 const iter = {
-    [Symbol.iterator]() { return this; },
-	arr : [1,2,3,4],
-	next() {
-		return { 
-			done : this.arr.length === 0,
-			value : this.arr.pop()
-        };
-    }
+  [Symbol.iterator]() { return this; },
+  arr : [1,2,3,4],
+  next() {
+    return {  
+      done : this.arr.length === 0,
+      value : this.arr.pop()
+    };
+  }
 };
 
 const [a, ...b] = iter;
@@ -175,11 +175,11 @@ const iter = {
     [Symbol.iterator]() {return this;},
 	arr : [1,2,3,4],
 	next() {
-        return {
-			done : this.arr.length === 0,
-			value : this.arr.pop()
-        };
-    }
+    return {
+      done : this.arr.length === 0,
+      value : this.arr.pop()
+    };
+  }
 };
 const a = [...iter]
 a; // [4, 3, 2, 1]
@@ -191,27 +191,27 @@ const iter = {
     [Symbol.iterator]() {return this;},
 	arr : [1,2,3,4],
 	next() {
-        return {
-			done : this.arr.length === 0,
-			value : this.arr.pop()
-        };
-    }
+    return {
+      done : this.arr.length === 0,
+      value : this.arr.pop()
+    };
+  }
 };
 const test = (...arg) => console.log(arg);
 test(...iter);
 ```
 
-### For of
+#### For of
 ```js
 const iter = {
     [Symbol.iterator]() {return this;},
 	arr : [1,2,3,4],
 	next() {
-        return {
-			done : this.arr.length === 0,
-			value : this.arr.pop()
-        };
-    }
+    return {
+      done : this.arr.length === 0,
+      value : this.arr.pop()
+    };
+  }
 };
 
 for (const v of iter) {
@@ -224,21 +224,92 @@ for (const v of iter) {
 
 ## Practice
 ### 제곱을 요소로 갖는 가상 컬랙션
-- **동기명령** : 한번에 적재한 명령이 한번에 cpu에서 실행하는 것(cpu 점유). 이를 관찰하는 게 flow
-- **blocking** : 동기 명령 중에 관여할 수 없는 것
-- 브라우저는 얼마나 blocking 상태를 봐줄 것인가,   
+> - **동기명령** : 한번에 적재한 명령이 한번에 cpu에서 실행하는 것(cpu 점유). 이를 관찰하는 게 flow
+> - **blocking** : 동기 명령 중에 cpu에 관여할 수 없는 것
+> - 브라우저는 얼마나 blocking 상태를 봐줄 것인가,   
   pc브라우저는 30초이지만 업테이트로 20초도 안됨. 안드로이드 크롬은 pc와 같음 그러나 안드로이드 os는 5초 이상 지속되면 멈추게 함. window os는 15초  **> 따라서 약 5초 정도**  
   \>> 이는 우리가 정한 loop를 초로 환산할 수 없다
-- **sleep** : blocking 사이에 여유를 두는 것. js는 프레임으로 이를 제어
-- **긴 블로킹 할 수 없기 때문에 루프를 돌릴 때 상세하게 나누어서 짜야함 && limit를 걸어서 무한루프 방지!**
+> - **sleep** : blocking 사이에 여유를 두는 것. js는 프레임으로 이를 제어
+> - **긴 블로킹 할 수 없기 때문에 루프를 돌릴 때 상세하게 나누어서 짜야함 && limit를 걸어서 무한루프 방지!**
+> - **클로저**란 함수 생성 시, 자유변수를 캡처 해당 스코프에 가둬서 사용하는 것
 
 
 ```js
-cosnt N2 = class{
+const N2 = class{
   constructor (max) {
-    this.max = max;
+    this.max = max; // 무한 배열 막음
   }
 
-  [Symbol.iterator]
+  [Symbol.iterator]() {
+    let cursor = 0, max = this.max;
+    return {
+      done : false, // done이 무한히 false일 것을 막아야 함
+      next() {
+        if ( cursor > max ) {
+          this.done = true; // 무한 루프 방지
+        } else {
+          this.value = cursor * cursor;
+          cursor++
+        }
+        return this;
+      }
+    }
+  }
 }
 ```
+
+```js
+console.log([...new N2(5)]);
+
+for (const v of new N2(5)) {
+  console.log(v);
+}
+```
+
+## Generator
+> 다시 참고) **Iterator & Iterator result object & ㅑterable**
+> - **Iterator Interface**  
+>   1. next라는 키를 갖고,   
+>   2. 값으로 인자 받지 않고 `IteratorResultObject`를 반환하는 함수가 온다    
+> 
+> - **IteratorResultObject**  
+>   1. `value`와 `done`를 갖고 있다  
+> 
+> - **Iterable**  
+>   1. `[Symbol.iterator]`라는 키를 갖고  
+>   2. 값으로 인자를 받지 않고, `iterator Object`를 반환하는 함수가 온다
+
+- iterator generator 만들기 : 쉽게 iterator 만들기
+- 주요기능은 iterator 생성하는 것
+- Generator 함수 호출 시마다 iterator 만들어짐  
+  Generator가 만든 iterator는 동시에 iterable임
+
+```js
+// 위의 iterator를 generator로 구현한 코드
+const generator = funciton*(max) {
+  let cursor = 0;
+  while(cursor < max) {
+    yield cursor * cursor;
+    cursor++;
+  }
+}
+```
+- 함수의 인자와 지역변수 사용, 제어문 사용하는 일반적인 동기화 흐름 들어감
+- 다른 점은 `yield`활용하는 점, `yield` 호출 시 `next()`반환하는 효과와 같음  
+  이 시점에 suspension(정지, 연기, 보류) 생기는데, 이때 iterator result object 반환하게 됨. `done:false`로 보내고 멈춤  
+  다시 호출 시 `yield`구문 다음부터 재실행   
+- 자바스크립트는 문 하나를 record로 만들고 special record로 제어문 반환하는데,   
+  자바스크립트 엔진 실행기는 record를 돌리고 있고, 노이만 머신을 emulating(모방) 하는 것  
+  record를 돌려주는 가상머신 돌리는 것. 여기에 `yield`를 실행하면 suspension 발생하는 것!
+- 문은 중간에 멈출 수 없어! 라는 것이 일반적 상식이지만 `yield`통해 문을 멈출 수 있게 됨
+- routine은 한번 들어와서 한번에 실행하고 나가는 것이지만(일반 함수의 경우),   
+  generator는 여러번 들어와서 여러번 나갈 수 있기에 coroutine이라고 함
+
+- iterator와 generator 차이
+  - iterator에서는 `next()`를 호출, 해당 코드를 실행하는 것이지만
+  - generator에서는 while문 내 `yield` 기준으로 나뉘어 원하는 코드 반환 가능
+  - generator에서는 모든 제어권을 갖고 있음 
+  - done & value를 yield가 모두 갖고 있음. generator를 빠져나올 때 done이 false가 됨
+
+- iterator : 상태에 대한 관리요소가 scope 이용 자유변수, 인스턴스 만들어 필드로 관리(객체 구조물 활용)   
+  generator : 지역변수, 인자로 관리
