@@ -30,5 +30,48 @@
   next() {
     return ???
   }
+} 
+```
+- 루프 도는 대상의 길이가 동적으으로 변하는 경우
+- 루프의 복잡성이 높아지거나(복잡 or 재귀적 요소) 제어권 넘어설 경우
+
+```js
+{
+  [Symbol.iterator]() {return this;},
+  data : [{a:[1,2,3,4], b:"-"}, [5,6,7], 8, 9],
+  next() {
+    let v;
+    while(v = this.data.shift()) {
+      switch(true) {
+        case Array.isArray(v) :
+          this.data.unshift(...v);
+          break;
+        case v && typeof v == 'object' : // null 배제
+          for ( var k in v) this.data.unshift(v[k]);
+          break;
+        default :
+          return { value: v, done: false };
+      }
+    }
+    return { done: true };
+  }
+} 
+```
+
+```js
+// ES6 
+{
+  [Symbol.iterator]() {return this;},
+  data : [{a:[1,2,3,4], b:"-"}, [5,6,7], 8, 9],
+  next() {
+    let v;
+    while(v = this.data.shift()){
+      if (!( v instanceof Object)) return { value:v }; // number ,string, boolean, NaN, undefined / null은 Object
+      if (!Array.isArray(v)) v = Object.values(v); // Object에서 value만 모아 배열로 생성 
+      // 위에서 if로 추상 조건들을 먼저 풀어줌
+      this.data.unshift(...v);
+    }
+    return { done: true };
+  }
 }
 ```
