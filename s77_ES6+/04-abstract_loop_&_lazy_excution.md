@@ -200,3 +200,33 @@ const ArrayOp = class extends Operator{
 
 Operator.factory([1,2,3,{a:4, b:5},6,7]).operation(console.log)
 ```
+
+## Lazy Execution
+- 자바스크립트 최적화는 미비하지만, 돔 관련 스크립트 최적화의 경우는 효과가 있다
+- 브라우저에서 프로파일 찍으면 97%가 랜더링 문제
+- 따라서 일반적인 최적화는 랜더링이며, 자바스크립트 알고리즘의 경우 클래스 라이브러리 표준이 있을 경우 그것 사용하면 됨! 
+
+### 방법1. YEILD
+```js
+const odd = function*(data) {
+  for (const v of data) {
+    console.log("odd", odd.cnt++);
+    if ( v%2 ) yield v;
+  }
+};
+
+odd.cnt = 0;
+for (const v of odd(1,2,3,4)) console.log(v);
+```
+
+```js
+const task = function*(data,n) {
+  for (const v of data) {
+    console.log("take", take.cnt++);
+    if (n--) yield v; else break;
+  }
+}
+take.cnt = 0;
+for (const v of take([1,2,3,4], 2)) console.log(v);
+```
+
