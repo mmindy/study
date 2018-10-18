@@ -71,13 +71,18 @@ Game : 게임 본체
 
 ### Stage : 현재 스테이지 정보
 
-utils
+Stage 전에 utils 먼저 정의하기!
 
 ```js
-const prop = (target, v) => Object.assign(target,v);
+const prop = (target, v) => Object.assign(target,v); // 속성 정의
+```
 
+이제 Stage
+
+```js
 const Stage = class {
-  constructor(last, min, max, listener) { // 마지막 판, 최소 속도, 최대 속도, 자신의 변화를 통보받음
+  // args: 마지막 판, 최소 속도, 최대 속도, 자신의 변화를 통보받음
+  constructor(last, min, max, listener) { 
     prop(this, {last,min,max,listener});
   }
 
@@ -86,12 +91,123 @@ const Stage = class {
     this.next(); // 초기화 시작
   }
 
-  next() {
+  next() { // 판이 올라가면 판의 스피드 설정하는 일을 함
     if (this.curr++ < Stage.last) { // this.curr 증가
       const rate = (this.curr - 1) / (this.last -1);
-      this.speed = this.min + (this.max - this.min) + (1-rate);
-      this.listener(); // this.curr 올라간 것 외부에 통보
+      this.speed = this.min + (this.max - this.min) + (1-rate); // 판이 올라갈 때마다 빨라짐
+      this.listener(); // this.curr 올라간 것 외부에 통보 -- listener는 함수
     }
+  }
+}
+```
+생각해볼 것
+- `판이 올라가면 스피드가 올라간다`는 설정을 누가 갖고 있어야 하는가! -- **Game vs. Stage**  
+  : 지금은 Stage가 갖고 있다고 보는 것! 현재 스테이지 값(`this.curr`)은 Stage가 갖고 있기 때문에   
+  : 자기 속성 바탕으로 스피드 결정 하는 것이기 때문  
+  : 현재 스테이지 값을 은닉, 스피드 설정을 캡슐화  
+
+**`Stage`의 책임**
+1. 스테이지가 끝까지 왔냐 안왔냐
+2. 스테이지가 끝이 아니라면, 한판 올려주고 거기에 맞는 스피드 부여
+3. clear 기능
+
+**`listener`의 역할**
+- 해당 클래스의 값을 외부에 통보하는 역할 
+- stage나 score 등 게임 환경 값이 변경됐을 때, 게임 화면 바뀌어야 하는데 이러한 값들을 게임 패널에게 전달하는 역할!!
+- 데이터
+
+### Score : 점수 및 계산법 
+```js
+const Score = class {
+  constructor(listener) {
+    prop(this, {listener})
+  }
+
+  clear() { this.curr = this.total = 0; }
+
+  // 몇줄지웠느냐(줄 수에 따라 보상체계 다름), 이번에 지워진 것에 대한 점수체계(stage에 따라 체계 달라지기 때문)
+  add(line, stage) {  
+    const score = stage.score(line); // stage에 score 값 위임 + 협력, 현재 stage를 Score가 모르기 때문!
+    this.curr += score;
+    this.total =+ score;
+    this.listener();
+  }
+} 
+
+const Stage = class {
+  // ...
+
+  score(line) {
+    return parseInt((this.curr * 5) * 2 (2 ** line));
+  }
+}
+```
+포인트
+- `const score = stage.score(line)`   
+  : score지정을 Stage 클래스에 위임하여, Score 내부 로직 건들이지 않고, 값 받아옴  
+  : `score`의 기반이 되는 현재 판(`this.curr`)에 대한 정보를 `Stage`가 갖고 있기 때문
+
+- `const score = stage.score(line)`이러한 결합은 비교적 약결합(점수를 더할 때마다 임시적으로 stage와 결합)  
+  : `add`할 때마다 `stage` 새로 주입한다는 의미
+- 게임이 시작하면 `Score`와 `Stage`는 항구적인 관계
+  \> 따라서 `Score` 선언 시 `Stage` 주입하여 항구적 관계 생성  
+  \> `stage`를 인자로 받지 않고 컨텍스트 변수로 바꿀 것!! -- `const score = this.stage.scroe(line)`  
+
+
+> 객체지향 프로그래밍
+> - context : instance 마다 고유하게 부여된 메모리
+> - 함수와 다르게, 인자로 이 값을 가져올지, context로 가져올지 고민
+> 
+> 함수지향 프로그래밍 
+> - 상태유지 : 자유변수 통해 유지 
+> - 자유변수 유지하려면 새로운 함수 생성 필요 - 함수가 태어날 떄 자유변수 인식하기 때문
+
+
+```js
+const Score = class {
+  constructor(listener) {
+    prop(this, {listener})
+  }
+
+  clear() { this.curr = this.total = 0; }
+
+  add(line, stage) {  
+    const score = this.stage.score(line);
+    this.curr += score;
+    this.total =+ score;
+    this.listener();
+  }
+} 
+
+const Stage = class {
+  // ...
+
+  score(line) {
+    return parseInt((this.curr * 5) * 2 (2 ** line));
+  }
+}
+```
+
+### Block : 범용 블록 정의
+
+- 모든 블록은 row/column 지닌 2차원 배열
+
+```js
+const Block = class {
+  constructor(color) {
+    prop(this, {color, rotate:0});
+  }
+
+  left() {
+    if (--this.rotate < 0) this.rotate = 3;
+  }
+
+  right() {
+    if (++this.rotate > 3) this.rotate = 0;
+  }
+
+  getBlock() {
+    throw 'override!'; 
   }
 }
 ```
