@@ -198,16 +198,111 @@ const Block = class {
     prop(this, {color, rotate:0});
   }
 
-  left() {
+  left() {  // CCW
     if (--this.rotate < 0) this.rotate = 3;
   }
 
-  right() {
+  right() { // CW
     if (++this.rotate > 3) this.rotate = 0;
   }
 
   getBlock() {
-    throw 'override!'; 
+    throw 'override!'; // 자식들이 오버라이드 하길 바라고 throw 던짐!
   }
 }
+
+const blocks = [ class extends Block, .... ];
 ```
+- 추상화 : 공통적인 것 카테고라이즈 하여 추출 -> 여기서는 `left()`, `right()`
+
+
+이제 그렇다면, 자식들인 `blocks`를 이어서 만들어 보자
+```js
+const blocks = [
+  class extends Block {
+    constructor() {
+      super('#f8cbad');  // 개별 블록 색상 지정
+    }
+
+    getBlock() {
+      return this.rotate % 2 ?
+        [[1],[1],[1],[1]] :
+        [[1,1,1,1]]; 
+    }
+  }
+];
+```
+
+- 부모의 `rotate`를 자식이 사용. 캡슐,은닉화 실패
+- 개별 블록의 배열 정보는 정적 데이터인데, 블록이 생성될 때마다 배열 생성됨.
+- 이러한 정보들은 컨텍스트 정보로 넘어와야 함
+```js
+const Block = class {
+  constructor(color, ...blocks) {
+    prop(this, {color, rotate:0, blocks, count:blocks.length-1});
+  }
+
+  left() {  // CCW
+    if (--this.rotate < 0) this.rotate = count;
+  }
+
+  right() { // CW
+    if (++this.rotate > count) this.rotate = 0;
+  }
+ssh
+  getBlock() {
+    return this.blocks[this.rotate];
+  }
+}
+
+const blocks = [
+  class extends Block {
+    constructor() {
+      super('#f8cbad',
+        [[1],[1],[1],[1]],
+        [[1,1,1,1]]  )
+    }
+  }
+];
+```
+
+```js
+const Renderer = class {
+  constructor(col, row) {
+    prop(this, {col, row, blocks:[]});
+    while(row--) {
+      this.blocks.push([]);
+    }
+  }
+
+  // 내적동질성에 의해 자식이 clear 구현. 자식 하나하나 인식X 부모로 보고 싶어서 대체가능성에 의해 clear 메소드 만들어 놓음
+  // 어떤 자식이 와도 clear 호출 가능하지만, 호출 시 내적동질성 의해 자식의 clear 메소드 호출됨
+  clear() { throw 'override'; } 
+
+  // render는 부모꺼를 쓰지만 내적동질성에 의해, _render는 자식 메소드를 쓰게 됨
+  // 이게 템플릿 메소드 패턴
+  render(data) {
+    if (!(data instanceof Data)) throw 'invalid data';
+    this._render(data);
+  }
+
+  _render(data) {throw 'override';}
+}
+
+const Data = class extends Array {
+  constructor (row, col) { prop(this, {row, col})}
+}
+```
+
+util 추가
+```js
+const el = el => document.createElement(el);
+const back = (s,v) => s.backgroundColor = v;
+```
+
+- 적층용 렌더링 : 클릭 과정에 따라 변화 렌더링 하기 쉽지만(순서대로 구현하지 않으면  재현할 수 없음),   
+  모델 렌더링 : 클릭 시 데이터 변경 후 전체 렌더링하여 언제나 모델하고 일치한 그림 그릴 수 있음!(??)
+
+**도메인 패턴**
+- 도메인 객체와 네이티브 객체를 분리하여, 네이티브 환경에 따라 도메인 객체 재활용 가능  
+  (DOM, WebGL, Canvas.. )
