@@ -11,4 +11,5 @@
 1. [Sub Routine](./01-sub_routine.md)
 2. [Further Routine](./02-further_routine.md)
 3. [Stack](./03-stack.md)
-4. [OOAD](./04-OOAD.md)
+4. [OOAD1](./04-OOAD.md)
+5. [OOAD2](./04-OOAD2.md)
