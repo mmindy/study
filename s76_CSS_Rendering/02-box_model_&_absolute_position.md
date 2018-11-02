@@ -9,6 +9,9 @@
 ## box sizing
 
 ## box-shadow
+```
+box-shadow: (1)수평 offset 길이 (2)수직 offset 길이 (3)흐림 반경 (4)그림자확산 거리(+:오른쪽, -:왼쪽) (5)그림자 색상
+```
 - `box-shadow:0 0 0 10px #aa0;`이 경우 border를 준 것과 같은 효과
 - box-shadow의 경우 Geometry(layout)에 영향X
 - ※ position:relative; 등 z-index에 영향 미치는 애들 외 인라인 요소도 그려지는 순서가 있음
@@ -153,7 +156,7 @@ div { display:inline-block; width:100px; height:100px; padding:10px; border:10px
   ```
 
 > cf. **float vs position 누가 더 센가?**
-> `float`은 normal flow를 따르고, `position:absolute`는 normal flow의 로직을 따르지 않는 것이기 떄문에,   
+> `float`은 normal flow를 따르고(외냐면 새로운 BFC를 만들어야 하기 때문에), `position:absolute`는 normal flow의 로직을 따르지 않는 것이기 떄문에,   
 > `float`을 준 요소에 `absolute`를 주면 `float`속성이 깨지게 됨
 
 

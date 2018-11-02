@@ -1,6 +1,8 @@
 
-- **Vender Prefix** : css 는 브라우저마다 지원사항이 다르고, 새로운 기능의 경우 vendor prefix를 붙였다가 안정화되고 나서 떼는 경우가 일반적
-- **CSSOM** : 자바스크립트 이용하여 css 수정. 이는 DOM에 박는 게 아닌 css를 객체화 시켜 다루는 것!
+**Vender Prefix** 
+- css 는 브라우저마다 지원사항이 다르고, 새로운 기능의 경우 vendor prefix를 붙였다가 안정화되고 나서 떼는 경우가 일반적
+**CSSOM**(CSS Object Model) 
+- 자바스크립트 이용하여 css 수정. 이는 DOM에 inline style을 넣는 게 아닌 css를 객체화 시켜 다루는 것!
 
 
 # CSS Object Model
@@ -9,7 +11,7 @@
 1. style dom element : `<style>` 태그
 2. sheet :   
   - element 안에 sheet 들어있는데, 얘가 실체. 이거를 DOM element(`<style>`)에 삽입하여 html문서에 넣은 것.
-  - tag는 컨테이너 박스 같은 래핑 객체. 실체는 태그 안에 들어 있음
+  - tag는 컨테이너 박스 같은 래핑 객체. 실체는 그  안에 들어 있음
 3. css rules : sheet는 CSS rules라는 리스트 갖고 있음. (배열)
 4. item : css rules 의 개별 요소  
   - [type / selectorText / style객체] 갖음
